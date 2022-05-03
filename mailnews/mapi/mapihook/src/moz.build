@@ -21,5 +21,7 @@ OS_LIBS += [
     'ole32',
 ]
 
+LOCAL_INCLUDES += ['/mailnews/mapi/include']
+
 DEFINES['UNICODE'] = True
 DEFINES['_UNICODE'] = True
