@@ -1,5 +1,4 @@
 /* -*- Mode: C++; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
-/* vim: set ts=8 sts=2 et sw=2 tw=80: */
 // Copyright (c) 2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -71,7 +70,6 @@
 
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
-#include "base/hash_tables.h"
 
 // Windows-style drive letter support and pathname separator characters can be
 // enabled and disabled independently, to aid testing.  These #defines are
@@ -251,27 +249,5 @@ class FilePath {
 #elif defined(OS_WIN)
 #define FILE_PATH_LITERAL(x) L ## x
 #endif  // OS_WIN
-
-// Implement hash function so that we can use FilePaths in hashsets and maps.
-#if defined(COMPILER_GCC) && !defined(ANDROID)
-namespace __gnu_cxx {
-
-template<>
-struct hash<FilePath> {
-  size_t operator()(const FilePath& f) const {
-    return hash<FilePath::StringType>()(f.value());
-  }
-};
-
-}  // namespace __gnu_cxx
-#elif defined(COMPILER_MSVC)
-namespace stdext {
-
-inline size_t hash_value(const FilePath& f) {
-  return hash_value(f.value());
-}
-
-}  // namespace stdext
-#endif  // COMPILER
 
 #endif  // BASE_FILE_PATH_H_

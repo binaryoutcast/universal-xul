@@ -1,5 +1,4 @@
 /* -*- Mode: C++; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
-/* vim: set ts=8 sts=2 et sw=2 tw=80: */
 // Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -270,39 +269,6 @@ void SharedMemory::Close(bool unmap_view) {
   }
 }
 
-#ifdef ANDROID
-void SharedMemory::LockOrUnlockCommon(int function) {
-  DCHECK(mapped_file_ >= 0);
-  struct flock lockreq;
-  lockreq.l_type = function;
-  lockreq.l_whence = SEEK_SET;
-  lockreq.l_start = 0;
-  lockreq.l_len = 0;
-  while (fcntl(mapped_file_, F_SETLKW, &lockreq) < 0) {
-    if (errno == EINTR) {
-      continue;
-    } else if (errno == ENOLCK) {
-      // temporary kernel resource exaustion
-      PlatformThread::Sleep(500);
-      continue;
-    } else {
-      NOTREACHED() << "lockf() failed."
-                   << " function:" << function
-                   << " fd:" << mapped_file_
-                   << " errno:" << errno
-                   << " msg:" << strerror(errno);
-    }
-  }
-}
-
-void SharedMemory::Lock() {
-  LockOrUnlockCommon(F_WRLCK);
-}
-
-void SharedMemory::Unlock() {
-  LockOrUnlockCommon(F_UNLCK);
-}
-#else
 void SharedMemory::LockOrUnlockCommon(int function) {
   DCHECK(mapped_file_ >= 0);
   while (lockf(mapped_file_, function, 0) < 0) {
@@ -329,7 +295,6 @@ void SharedMemory::Lock() {
 void SharedMemory::Unlock() {
   LockOrUnlockCommon(F_ULOCK);
 }
-#endif
 
 SharedMemoryHandle SharedMemory::handle() const {
   return FileDescriptor(mapped_file_, false);

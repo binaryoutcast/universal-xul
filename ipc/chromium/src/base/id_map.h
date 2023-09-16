@@ -1,5 +1,4 @@
 /* -*- Mode: C++; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
-/* vim: set ts=8 sts=2 et sw=2 tw=80: */
 // Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -8,8 +7,8 @@
 #define BASE_ID_MAP_H__
 
 #include "base/basictypes.h"
-#include "base/hash_tables.h"
 #include "base/logging.h"
+#include <unordered_map>
 
 // This object maintains a list of IDs that can be quickly converted to
 // pointers to objects. It is implemented as a hash table, optimized for
@@ -22,7 +21,7 @@
 template<class T>
 class IDMap {
  private:
-  typedef base::hash_map<int32_t, T*> HashTable;
+  typedef std::unordered_map<int32_t, T*> HashTable;
   typedef typename HashTable::iterator iterator;
 
  public:

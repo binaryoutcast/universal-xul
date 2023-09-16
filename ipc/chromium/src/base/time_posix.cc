@@ -1,5 +1,4 @@
 /* -*- Mode: C++; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
-/* vim: set ts=8 sts=2 et sw=2 tw=80: */
 // Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -10,12 +9,8 @@
 #include <mach/mach_time.h>
 #endif
 #include <sys/time.h>
-#if defined(ANDROID) && !defined(__LP64__)
-#include <time64.h>
-#else
 #include <time.h>
-#endif
-#if defined(ANDROID) || defined(OS_POSIX)
+#if defined(OS_POSIX)
 #include <unistd.h>
 #endif
 
@@ -73,7 +68,7 @@ Time Time::FromExploded(bool is_local, const Exploded& exploded) {
 #endif
 
   time_t seconds;
-#if defined(ANDROID) || defined(OS_SOLARIS)
+#if defined(OS_SOLARIS)
     seconds = mktime(&timestruct);
 #else
   if (is_local)

@@ -1,5 +1,4 @@
 /* -*- Mode: C++; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
-/* vim: set ts=8 sts=2 et sw=2 tw=80: */
 // Copyright (c) 2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -9,9 +8,7 @@
 
 #include <errno.h>
 #include <string.h>
-#ifndef ANDROID
 #include <sys/statvfs.h>
-#endif
 #include <sys/utsname.h>
 #include <unistd.h>
 
@@ -91,15 +88,11 @@ int64_t SysInfo::AmountOfPhysicalMemory() {
 
 // static
 int64_t SysInfo::AmountOfFreeDiskSpace(const std::wstring& path) {
-#ifndef ANDROID
   struct statvfs stats;
   if (statvfs(WideToUTF8(path).c_str(), &stats) != 0) {
     return -1;
   }
   return static_cast<int64_t>(stats.f_bavail) * stats.f_frsize;
-#else
-  return -1;
-#endif
 }
 
 // static

@@ -1,5 +1,4 @@
 /* -*- Mode: C++; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
-/* vim: set ts=8 sts=2 et sw=2 tw=80: */
 // Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -166,13 +165,9 @@ bool CreateNewTempDirectory(const FilePath::StringType& prefix,
     return false;
   tmpdir = tmpdir.Append(kTempFileName);
   std::string tmpdir_string = tmpdir.value();
-#ifdef ANDROID
-  char* dtemp = NULL;
-#else
   // this should be OK since mkdtemp just replaces characters in place
   char* buffer = const_cast<char*>(tmpdir_string.c_str());
   char* dtemp = mkdtemp(buffer);
-#endif
   if (!dtemp)
     return false;
   *new_temp_path = FilePath(dtemp);

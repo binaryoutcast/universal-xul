@@ -1,5 +1,4 @@
 /* -*- Mode: C++; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
-/* vim: set ts=8 sts=2 et sw=2 tw=80: */
 // Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -136,7 +135,7 @@ Atomic64 Release_Load(volatile const Atomic64* ptr);
 // Include our platform specific implementation.
 #if defined(OS_WIN) && defined(ARCH_CPU_X86_FAMILY)
 #include "base/atomicops_internals_x86_msvc.h"
-#elif defined(OS_MACOSX) && defined(ARCH_CPU_X86_FAMILY)
+#elif defined(OS_MACOSX) && (defined(ARCH_CPU_X86_FAMILY) || defined(ARCH_CPU_ARM64))
 #include "base/atomicops_internals_x86_macosx.h"
 #elif defined(COMPILER_GCC) && defined(ARCH_CPU_X86_FAMILY)
 #include "base/atomicops_internals_x86_gcc.h"
