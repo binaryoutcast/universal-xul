@@ -5,8 +5,6 @@
  * This file contains functions to manage asymetric keys, (public and
  * private keys).
  */
-#include <stddef.h>
-
 #include "seccomon.h"
 #include "secmod.h"
 #include "secmodi.h"
@@ -2550,7 +2548,7 @@ PK11_ListPublicKeysInSlot(PK11SlotInfo *slot, char *nickname)
     CK_ATTRIBUTE *attrs;
     CK_BBOOL ckTrue = CK_TRUE;
     CK_OBJECT_CLASS keyclass = CKO_PUBLIC_KEY;
-    size_t tsize = 0;
+    unsigned int tsize = 0;
     int objCount = 0;
     CK_OBJECT_HANDLE *key_ids;
     SECKEYPublicKeyList *keys;
@@ -2598,7 +2596,7 @@ PK11_ListPrivKeysInSlot(PK11SlotInfo *slot, char *nickname, void *wincx)
     CK_ATTRIBUTE *attrs;
     CK_BBOOL ckTrue = CK_TRUE;
     CK_OBJECT_CLASS keyclass = CKO_PRIVATE_KEY;
-    size_t tsize = 0;
+    unsigned int tsize = 0;
     int objCount = 0;
     CK_OBJECT_HANDLE *key_ids;
     SECKEYPrivateKeyList *keys;

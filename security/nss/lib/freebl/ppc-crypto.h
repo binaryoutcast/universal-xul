@@ -5,8 +5,7 @@
 #ifndef PPC_CRYPTO_H
 #define PPC_CRYPTO_H 1
 
-#if defined(__powerpc64__) && defined(__ALTIVEC__) && \
-    !defined(NSS_DISABLE_ALTIVEC)
+#if defined(__powerpc64__) && !defined(NSS_DISABLE_ALTIVEC)
 #include "altivec-types.h"
 
 /* The ghash freebl test tries to use this in C++, and gcc defines conflict. */
@@ -22,10 +21,10 @@
  * please send a patch.
  */
 #if (defined(__clang__) || (defined(__GNUC__) && __GNUC__ >= 8)) && \
-    defined(IS_LITTLE_ENDIAN) && defined(__VSX__)
+    defined(IS_LITTLE_ENDIAN)
 #define USE_PPC_CRYPTO
 #endif
 
-#endif /* defined(__powerpc64__) && !defined(NSS_DISABLE_ALTIVEC) && defined(__ALTIVEC__) */
+#endif /* defined(__powerpc64__) && !defined(NSS_DISABLE_ALTIVEC) */
 
 #endif

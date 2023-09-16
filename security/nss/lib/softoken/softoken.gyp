@@ -56,7 +56,6 @@
           'pkcs11c.c',
           'pkcs11u.c',
           'sdb.c',
-          'sftkdhverify.c',
           'sftkdb.c',
           'sftkhmac.c',
           'sftkike.c',

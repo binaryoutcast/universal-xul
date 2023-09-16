@@ -134,10 +134,6 @@ struct TLSExtensionDataStr {
      * |tls13_MaybeSetDelegatedCredential|.
      */
     PRBool sendingDelegCredToPeer;
-
-    /* A non-owning reference to the selected PSKs. MUST NOT be freed directly,
-     * rather through tls13_DestoryPskList(). */
-    sslPsk *selectedPsk;
 };
 
 typedef struct TLSExtensionStr {

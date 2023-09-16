@@ -4,9 +4,6 @@
 /*
  * Deal with PKCS #11 Slots.
  */
-
-#include <stddef.h>
-
 #include "seccomon.h"
 #include "secmod.h"
 #include "nssilock.h"
@@ -1105,16 +1102,16 @@ PK11_MakeString(PLArenaPool *arena, char *space,
  */
 PRBool
 pk11_MatchString(const char *string,
-                 const char *staticString, size_t staticStringLen)
+                 const char *staticString, int staticStringLen)
 {
-    size_t i = staticStringLen;
+    int i;
 
-    /* move i to point to the last space */
-    while (i > 0) {
-        if (staticString[i - 1] != ' ')
+    for (i = (staticStringLen - 1); i >= 0; i--) {
+        if (staticString[i] != ' ')
             break;
-        i--;
     }
+    /* move i to point to the last space */
+    i++;
 
     if (strlen(string) == i && memcmp(string, staticString, i) == 0) {
         return PR_TRUE;
@@ -1185,7 +1182,7 @@ pk11_ReadProfileList(PK11SlotInfo *slot)
     CK_ATTRIBUTE *attrs;
     CK_BBOOL cktrue = CK_TRUE;
     CK_OBJECT_CLASS oclass = CKO_PROFILE;
-    size_t tsize;
+    int tsize;
     int objCount;
     CK_OBJECT_HANDLE *handles = NULL;
     int i;
@@ -1487,7 +1484,7 @@ pk11_isRootSlot(PK11SlotInfo *slot)
     CK_ATTRIBUTE findTemp[1];
     CK_ATTRIBUTE *attrs;
     CK_OBJECT_CLASS oclass = CKO_NSS_BUILTIN_ROOT_LIST;
-    size_t tsize;
+    int tsize;
     CK_OBJECT_HANDLE handle;
 
     attrs = findTemp;
@@ -2616,7 +2613,7 @@ SECStatus
 PK11_ResetToken(PK11SlotInfo *slot, char *sso_pwd)
 {
     unsigned char tokenName[32];
-    size_t tokenNameLen;
+    int tokenNameLen;
     CK_RV crv;
 
     /* reconstruct the token name */

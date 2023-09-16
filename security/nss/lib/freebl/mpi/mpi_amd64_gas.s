@@ -18,15 +18,7 @@
 # s_mpv_mul_set_vec64(uint64_t *r, uint64_t *a, int len, uint64_t digit)
 #
 
-.text; .align 16; .globl s_mpv_mul_set_vec64;
-
-#ifdef DARWIN
-#define s_mpv_mul_set_vec64		_s_mpv_mul_set_vec64
-.private_extern s_mpv_mul_set_vec64
-s_mpv_mul_set_vec64:
-#else
-.type s_mpv_mul_set_vec64, @function; s_mpv_mul_set_vec64:
-#endif
+.text; .align 16; .globl s_mpv_mul_set_vec64; .type s_mpv_mul_set_vec64, @function; s_mpv_mul_set_vec64:
 
 	xorq	%rax, %rax		# if (len == 0) return (0)
 	testq	%rdx, %rdx
@@ -177,9 +169,7 @@ s_mpv_mul_set_vec64:
 	movq	%r9, %rax
 	ret
 
-#ifndef DARWIN
 .size s_mpv_mul_set_vec64, .-s_mpv_mul_set_vec64
-#endif
 
 # ------------------------------------------------------------------------
 #
@@ -196,15 +186,7 @@ s_mpv_mul_set_vec64:
 # s_mpv_mul_add_vec64(uint64_t *r, uint64_t *a, int len, uint64_t digit)
 #
 
-.text; .align 16; .globl s_mpv_mul_add_vec64;
-
-#ifdef DARWIN
-#define s_mpv_mul_add_vec64      _s_mpv_mul_add_vec64
-.private_extern s_mpv_mul_add_vec64
-s_mpv_mul_add_vec64:
-#else
-.type s_mpv_mul_add_vec64, @function; s_mpv_mul_add_vec64:
-#endif
+.text; .align 16; .globl s_mpv_mul_add_vec64; .type s_mpv_mul_add_vec64, @function; s_mpv_mul_add_vec64:
 
 	xorq	%rax, %rax		# if (len == 0) return (0)
 	testq	%rdx, %rdx
@@ -399,11 +381,9 @@ s_mpv_mul_add_vec64:
 .L27:
 	movq	%r9, %rax
 	ret
-
-#ifndef DARWIN
+        
 .size s_mpv_mul_add_vec64, .-s_mpv_mul_add_vec64
 
 # Magic indicating no need for an executable stack
 .section .note.GNU-stack, "", @progbits
 .previous
-#endif

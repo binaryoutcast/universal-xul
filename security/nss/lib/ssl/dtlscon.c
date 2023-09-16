@@ -270,6 +270,12 @@ SECStatus
 dtls_HandleHandshake(sslSocket *ss, DTLSEpoch epoch, sslSequenceNumber seqNum,
                      sslBuffer *origBuf)
 {
+    /* XXX OK for now.
+     * This doesn't work properly with asynchronous certificate validation.
+     * because that returns a WOULDBLOCK error. The current DTLS
+     * applications do not need asynchronous validation, but in the
+     * future we will need to add this.
+     */
     sslBuffer buf = *origBuf;
     SECStatus rv = SECSuccess;
     PRBool discarded = PR_FALSE;
@@ -304,8 +310,7 @@ dtls_HandleHandshake(sslSocket *ss, DTLSEpoch epoch, sslSequenceNumber seqNum,
         if (message_length > MAX_HANDSHAKE_MSG_LEN) {
             (void)ssl3_DecodeError(ss);
             PORT_SetError(SSL_ERROR_RX_MALFORMED_HANDSHAKE);
-            rv = SECFailure;
-            goto loser;
+            return SECFailure;
         }
 #undef MAX_HANDSHAKE_MSG_LEN
 
@@ -480,7 +485,7 @@ dtls_HandleHandshake(sslSocket *ss, DTLSEpoch epoch, sslSequenceNumber seqNum,
     }
 
     // This should never happen, but belt and suspenders.
-    if (rv != SECSuccess) {
+    if (rv == SECFailure) {
         PORT_Assert(0);
         goto loser;
     }
@@ -500,6 +505,9 @@ dtls_HandleHandshake(sslSocket *ss, DTLSEpoch epoch, sslSequenceNumber seqNum,
 
 loser:
     origBuf->len = 0; /* So ssl3_GatherAppDataRecord will keep looping. */
+
+    /* XXX OK for now. In future handle rv == SECWouldBlock safely in order
+     * to deal with asynchronous certificate verification */
     return rv;
 }
 

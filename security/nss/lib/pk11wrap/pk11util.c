@@ -95,8 +95,8 @@ SECMOD_Shutdown()
     return SECSuccess;
 }
 
-PRBool
-SECMOD_GetSystemFIPSEnabled(void)
+int
+secmod_GetSystemFIPSEnabled(void)
 {
 #ifdef LINUX
 #ifndef NSS_FIPS_DISABLED
@@ -106,20 +106,20 @@ SECMOD_GetSystemFIPSEnabled(void)
 
     f = fopen("/proc/sys/crypto/fips_enabled", "r");
     if (!f) {
-        return PR_FALSE;
+        return 0;
     }
 
     size = fread(&d, 1, sizeof(d), f);
     fclose(f);
     if (size != sizeof(d)) {
-        return PR_FALSE;
+        return 0;
     }
     if (d == '1') {
-        return PR_TRUE;
+        return 1;
     }
 #endif
 #endif
-    return PR_FALSE;
+    return 0;
 }
 
 /*
@@ -455,7 +455,7 @@ SECMOD_DeleteInternalModule(const char *name)
     SECMODModuleList **mlpp;
     SECStatus rv = SECFailure;
 
-    if (SECMOD_GetSystemFIPSEnabled() || pendingModule) {
+    if (secmod_GetSystemFIPSEnabled() || pendingModule) {
         PORT_SetError(SEC_ERROR_MODULE_STUCK);
         return rv;
     }
@@ -990,7 +990,7 @@ SECMOD_CanDeleteInternalModule(void)
 #ifdef NSS_FIPS_DISABLED
     return PR_FALSE;
 #else
-    return (PRBool)((pendingModule == NULL) && !SECMOD_GetSystemFIPSEnabled());
+    return (PRBool)((pendingModule == NULL) && !secmod_GetSystemFIPSEnabled());
 #endif
 }
 

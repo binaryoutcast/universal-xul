@@ -716,6 +716,7 @@ sftk_modifyType(CK_ATTRIBUTE_TYPE type, CK_OBJECT_CLASS inClass)
         case CKA_PUBLIC_EXPONENT:
         case CKA_PRIVATE_EXPONENT:
         case CKA_PRIME:
+        case CKA_SUBPRIME:
         case CKA_BASE:
         case CKA_PRIME_1:
         case CKA_PRIME_2:
@@ -764,11 +765,6 @@ sftk_modifyType(CK_ATTRIBUTE_TYPE type, CK_OBJECT_CLASS inClass)
         /* DEPENDS ON CLASS */
         case CKA_VALUE:
             mtype = (inClass == CKO_DATA) ? SFTK_ALWAYS : SFTK_NEVER;
-            break;
-
-        case CKA_SUBPRIME:
-            /* allow the CKA_SUBPRIME to be added to dh private keys */
-            mtype = (inClass == CKO_PRIVATE_KEY) ? SFTK_ALWAYS : SFTK_NEVER;
             break;
 
         case CKA_SUBJECT:

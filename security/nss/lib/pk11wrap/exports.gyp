@@ -13,7 +13,6 @@
         {
           'files': [
             'pk11func.h',
-            'pk11hpke.h',
             'pk11pqg.h',
             'pk11priv.h',
             'pk11pub.h',

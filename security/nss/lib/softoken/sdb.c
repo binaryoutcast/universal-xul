@@ -2233,7 +2233,7 @@ sdb_init(char *dbname, char *table, sdbDataType type, int *inUpdate,
             goto loser;
         }
         unsigned int schemaAttrsCapacity = known_attributes_size;
-        sdb_p->schemaAttrs = malloc(schemaAttrsCapacity * sizeof(CK_ATTRIBUTE_TYPE));
+        sdb_p->schemaAttrs = malloc(schemaAttrsCapacity * sizeof(CK_ATTRIBUTE));
         if (!sdb_p->schemaAttrs) {
             error = CKR_HOST_MEMORY;
             goto loser;
@@ -2247,7 +2247,7 @@ sdb_init(char *dbname, char *table, sdbDataType type, int *inUpdate,
                 if (backedAttrs == schemaAttrsCapacity) {
                     schemaAttrsCapacity += known_attributes_size;
                     sdb_p->schemaAttrs = realloc(sdb_p->schemaAttrs,
-                                                 schemaAttrsCapacity * sizeof(CK_ATTRIBUTE_TYPE));
+                                                 schemaAttrsCapacity * sizeof(CK_ATTRIBUTE));
                     if (!sdb_p->schemaAttrs) {
                         error = CKR_HOST_MEMORY;
                         goto loser;
