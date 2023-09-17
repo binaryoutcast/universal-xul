@@ -1,41 +1,7 @@
-# Unified XUL Platform (UXP)
+# UXP "Redwood"
 
-**THIS IS A CLOSED/STALE BRANCH - DO NOT USE**
+The Redwood branch of the Unified XUL Platform was orginally used while testing and development continued on trunk toward webcomponents. At some point, the work ceased and it was THOUGHT stable and merged in. However, there have been side effects. Presenting most brokenly in Interlink. So what was once for an extended range of Pale Moon 28.x versions is now the home of Interlink Mail until it can be determined what caused the breaking regressions and how to work around or fix them.
 
-This repository holds the code for a unified application platform for XUL-based
-applications. It is a hard fork from the Mozilla code repository (mozilla-central)
-with an ESR-52 fork point.
+Otherwise this codebase may become used for "pure" toolkit applications that do not require the latest WebApp specifications if it persists.
 
-In addition to further development based on the Mozilla upstream code, and
-selective cherry-picking of directly-applicable patches, this repository has its
-own development and holds the base for a maintained platform to be used by XUL
-applications.
-
-For a list of active projects making use of the Unified XUL Platform, checkout http://thereisonlyxul.org/.
-
-## Additional documentation
-
-Additional documentation relevant to this source code can be found in the `/docs`
-directory. This will contain relevant documentation regarding contributing,
-using and distributing this code and its binaries.
-
-If you are interested in the development and building side of things, some
-information will be available on the [Pale Moon developer site](http://developer.palemoon.org).
-You are also always welcome to get in touch with our community on the [Pale Moon forum](https://forum.palemoon.org/).
-
-### A note about trademarks and branding
-
-Although this repository is licensed under Mozilla Public License v2.0, the
-trademarks and brands contained herein remain the property of their respective
-owners. For more details, please see the notifications in the respective directories.
-
-### Foundation and maintainership
-
-This repository has been founded by Moonchild (M.C. Straver) and is maintained by him
-and other community members.
-If you fork this repository to perform your own work on it, please consider offering
-improvement patches upstream to its origin to mutually improve the platform and build
-a future for XUL.
-
-## Looking for Pale Moon and Basilisk?
-As of [`Issue #969`](https://repo.palemoon.org/MoonchildProductions/UXP/issues/969), release versions `28.9.0` and `2020.03.04` respectively, they have been split off into their own dedicated repositories located at [`MoonchildProductions/Pale-Moon`](https://repo.palemoon.org/MoonchildProductions/Pale-Moon) and [`MoonchildProductions/Basilisk`](https://repo.palemoon.org/MoonchildProductions/Basilisk).
+The `unified-comm` branch will operate as `binoc-central` did in relation to `uxp-redwood` and `uxp-current` (mcp's uxp master/release branches) with `redwood` and `current` branch identifiers and be made and as functionally identical as possible so that the applications can be built for both iterations of the codebase. However, only Interlink will be initally produced with this codebase and if the issues with `uxp-current` can be resolved then Interlink will return to using that for as long as UXP its self remains viable.
