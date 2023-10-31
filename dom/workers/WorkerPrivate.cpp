@@ -167,6 +167,9 @@ const nsIID kDEBUGWorkerEventTargetIID = {
 
 #endif
 
+// The number of nested timeouts before we start clamping. HTML says 5.
+const uint32_t kClampTimeoutNestingLevel = 5u;
+
 template <class T>
 class AutoPtrComparator
 {
@@ -238,6 +241,7 @@ private:
   WorkerRun(JSContext* aCx, WorkerPrivate* aWorkerPrivate) override
   {
     nsresult rv = mWrappedRunnable->Run();
+    mWrappedRunnable = nullptr;
     if (NS_FAILED(rv)) {
       if (!JS_IsExceptionPending(aCx)) {
         Throw(aCx, rv);
@@ -256,6 +260,7 @@ private:
     MOZ_ASSERT(cancelable); // We checked this earlier!
     rv = cancelable->Cancel();
     nsresult rv2 = WorkerRunnable::Cancel();
+    mWrappedRunnable = nullptr;
     return NS_FAILED(rv) ? rv : rv2;
   }
 };
@@ -1956,7 +1961,11 @@ NS_IMPL_QUERY_INTERFACE(WorkerLoadInfo::InterfaceRequestor, nsIInterfaceRequesto
 struct WorkerPrivate::TimeoutInfo
 {
   TimeoutInfo()
-  : mId(0), mIsInterval(false), mCanceled(false)
+  : mId(0)
+  , mNestingLevel(0)
+  , mIsInterval(false)
+  , mCanceled(false)
+  , mOnChromeWorker(false)
   {
     MOZ_COUNT_CTOR(mozilla::dom::workers::WorkerPrivate::TimeoutInfo);
   }
@@ -1976,12 +1985,33 @@ struct WorkerPrivate::TimeoutInfo
     return mTargetTime < aOther.mTargetTime;
   }
 
+  void AccumulateNestingLevel(const uint32_t& aBaseLevel) {
+    if (aBaseLevel < kClampTimeoutNestingLevel) {
+      mNestingLevel = aBaseLevel + 1;
+      return;
+    }
+    mNestingLevel = kClampTimeoutNestingLevel;
+  }
+
+  void CalculateTargetTime() {
+    auto target = mInterval;
+    // Clamp timeout for workers, except chrome workers
+    if (mNestingLevel >= kClampTimeoutNestingLevel && !mOnChromeWorker) {
+      target = TimeDuration::Max(
+          mInterval,
+          TimeDuration::FromMilliseconds(Preferences::GetInt("dom.min_timeout_value")));
+    }
+    mTargetTime = TimeStamp::Now() + target;
+  }
+
   nsCOMPtr<nsIScriptTimeoutHandler> mHandler;
   mozilla::TimeStamp mTargetTime;
   mozilla::TimeDuration mInterval;
   int32_t mId;
+  uint32_t mNestingLevel;
   bool mIsInterval;
   bool mCanceled;
+  bool mOnChromeWorker;
 };
 
 class WorkerJSContextStats final : public JS::RuntimeStats
@@ -4126,10 +4156,12 @@ WorkerPrivate::WorkerPrivate(WorkerPrivate* aParent,
   , mDebugger(nullptr)
   , mJSContext(nullptr)
   , mPRThread(nullptr)
+  , mNumHoldersPreventingShutdownStart(0)
   , mDebuggerEventLoopLevel(0)
   , mMainThreadEventTarget(do_GetMainThread())
   , mErrorHandlerRecursionCount(0)
   , mNextTimeoutId(1)
+  , mCurrentTimerNestingLevel(0)
   , mStatus(Pending)
   , mFrozen(false)
   , mTimerRunning(false)
@@ -5353,8 +5385,11 @@ WorkerPrivate::AddHolder(WorkerHolder* aHolder, Status aFailStatus)
 
   MOZ_ASSERT(!mHolders.Contains(aHolder), "Already know about this one!");
 
-  if (mHolders.IsEmpty() && !ModifyBusyCountFromWorker(true)) {
-    return false;
+  if (aHolder->GetBehavior() == WorkerHolder::PreventIdleShutdownStart) {
+    if (!mNumHoldersPreventingShutdownStart && !ModifyBusyCountFromWorker(true)) {
+      return false;
+    }
+    mNumHoldersPreventingShutdownStart += 1;
   }
 
   mHolders.AppendElement(aHolder);
@@ -5369,8 +5404,11 @@ WorkerPrivate::RemoveHolder(WorkerHolder* aHolder)
   MOZ_ASSERT(mHolders.Contains(aHolder), "Didn't know about this one!");
   mHolders.RemoveElement(aHolder);
 
-  if (mHolders.IsEmpty() && !ModifyBusyCountFromWorker(false)) {
-    NS_WARNING("Failed to modify busy count!");
+  if (aHolder->GetBehavior() == WorkerHolder::PreventIdleShutdownStart) {
+    mNumHoldersPreventingShutdownStart -= 1;
+    if (!mNumHoldersPreventingShutdownStart && !ModifyBusyCountFromWorker(false)) {
+      NS_WARNING("Failed to modify busy count!");
+    }
   }
 }
 
@@ -6074,8 +6112,10 @@ WorkerPrivate::SetTimeout(JSContext* aCx,
   }
 
   nsAutoPtr<TimeoutInfo> newInfo(new TimeoutInfo());
+  newInfo->mOnChromeWorker = mIsChromeWorker;
   newInfo->mIsInterval = aIsInterval;
   newInfo->mId = timerId;
+  newInfo->AccumulateNestingLevel(this->mCurrentTimerNestingLevel);
 
   if (MOZ_UNLIKELY(timerId == INT32_MAX)) {
     NS_WARNING("Timeout ids overflowed!");
@@ -6191,10 +6231,15 @@ WorkerPrivate::RunExpiredTimeouts(JSContext* aCx)
   // Run expired timeouts.
   for (uint32_t index = 0; index < expiredTimeouts.Length(); index++) {
     TimeoutInfo*& info = expiredTimeouts[index];
+    AutoRestore<uint32_t> nestingLevel(this->mCurrentTimerNestingLevel);
 
     if (info->mCanceled) {
       continue;
     }
+
+    // Set current timer nesting level to current running timer handler's
+    // nesting level
+    this->mCurrentTimerNestingLevel = info->mNestingLevel;
 
     LOG(TimeoutsLog(), ("Worker %p executing timeout with original delay %f ms.\n",
                         this, info->mInterval.ToMilliseconds()));
@@ -6273,8 +6318,10 @@ WorkerPrivate::RunExpiredTimeouts(JSContext* aCx)
         info->mCanceled) {
       if (info->mIsInterval && !info->mCanceled) {
         // Reschedule intervals.
-        info->mTargetTime = info->mTargetTime + info->mInterval;
-        // Don't resort the list here, we'll do that at the end.
+        // Reschedule a timeout and, if needed, increase the nesting level.
+        info->AccumulateNestingLevel(info->mNestingLevel);
+        info->CalculateTargetTime();
+        // Don't re-sort the list here, we'll do that at the end.
         ++index;
       }
       else {

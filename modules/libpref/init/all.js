@@ -1301,6 +1301,9 @@ pref("javascript.options.main_thread_stack_quota_cap", 2097152);
 // Dynamic module import.
 pref("javascript.options.dynamicImport", true);
 
+// Streams API
+pref("javascript.options.streams", true);
+
 // advanced prefs
 pref("advanced.mailftp",                    false);
 pref("image.animation_mode",                "normal");
@@ -4260,6 +4263,7 @@ pref("webgl.can-lose-context-in-foreground", true);
 pref("webgl.restore-context-when-visible", true);
 pref("webgl.max-warnings-per-context", 32);
 pref("webgl.max-size-per-texture-mb", 1024);
+pref("webgl.max-vert-ids-per-draw", 30000000);
 pref("webgl.enable-draft-extensions", false);
 pref("webgl.enable-privileged-extensions", false);
 pref("webgl.bypass-shader-validation", false);
@@ -4524,6 +4528,9 @@ pref("layout.animated-image-layers.enabled", false);
 
 // Abort API
 pref("dom.abortController.enabled", true);
+
+// Streams API
+pref("dom.streams.enabled", true);
 
 // Push
 pref("dom.push.enabled", false);
