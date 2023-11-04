@@ -4,10 +4,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// We define this to make our use of inet_ntoa() pass. The "proper" function
-// inet_ntop() doesn't exist on Windows XP.
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
-
 #include <stdarg.h>
 #include <windef.h>
 #include <winbase.h>

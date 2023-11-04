@@ -17,7 +17,7 @@ toolbox {
   -moz-border-top-colors: ThreeDShadow ThreeDHighlight;
 }
 
-@media (-moz-os-version: windows-win10) {
+@media (-moz-os-version: windows-win10) and (-moz-windows-theme: aero) {
   toolbox {
     /* Windows 10's "aero" msstyle sourced toolbox background is pure white
        so don't use the widget toolbox styling and fallback to -moz-Dialog's
@@ -56,7 +56,7 @@ toolbar:first-child, menubar {
   border-top: 0px !important;
 }
 
-@media (-moz-os-version: windows-win10) {
+@media (-moz-os-version: windows-win10) and (-moz-windows-theme: aero) {
   toolbox > toolbar[type="menubar"], menubar {
     -moz-appearance: none;
     background-color: #fff;
