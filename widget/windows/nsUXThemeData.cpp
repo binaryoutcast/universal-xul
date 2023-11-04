@@ -335,7 +335,6 @@ nsUXThemeData::UpdateNativeThemeInfo()
   }
 
   if (theme == WINTHEME_UNRECOGNIZED) {
-    MOZ_CRASH("Crash!");
     return;
   }
 
